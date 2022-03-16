@@ -18,4 +18,8 @@
 
 # Stack
 
-wip
+- Java
+It will be a somewhat highload backend application, therefore 
+java as a backend seams like a reasonable choice. Plus, I want
+to practice it. 
+
