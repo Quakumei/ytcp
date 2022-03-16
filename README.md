@@ -23,3 +23,11 @@ It will be a somewhat highload backend application, therefore
 java as a backend seams like a reasonable choice. Plus, I want
 to practice it. 
 
+- But for now Python
+I don't have that much experience in Java and it seems to be rather
+complex to do that right off the bat. Let's say it's only a beginning.
+
+
+
+# Thanks to
+- youtube-dl
