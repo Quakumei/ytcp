@@ -26,7 +26,7 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description="ytcp - YouTube Create Playlist video")
-    parser.add_argument('--list', required=True, type=str,
+    parser.add_argument('--list', type=str,
                         help='source file for youtube audio links')
     parser.add_argument('--resolution',
                         type=str,
@@ -58,6 +58,46 @@ def check_args(args: argparse.Namespace):
         raise ValueError("resolution")
 
 
+def parse_file_list(filename: str) -> list:
+    res = []
+    with open(filename) as f:
+        res = f.read().splitlines()
+    return res
+
+
+def speed_check(s):
+    speed = s.get('speed')
+    ready = s.get('downloaded_bytes', 0)
+    total = s.get('total_bytes', 0)
+
+    if speed and speed <= 77 * 1024 and ready >= total * 0.1:
+        # if the speed is less than 77 kb/s and we have
+        # at least one tenths of the video downloaded
+        raise Exception('Abnormal downloading speed drop.')
+
+
+def fetch_songs(songs: list):
+    """
+        Downloads audios from songs list
+    """
+    ydl_opts = {
+        "noplaylist": True,
+        "vcodec": None,
+        "outtmpl": "parts/%(title)s.%(ext)s",
+        # "listformats": True,
+        # "simulate": True,
+        "format": "249",
+    }
+    external_downloader = 'aria2c'
+    if external_downloader:
+        ydl_opts['external_downloader'] = external_downloader
+        ydl_opts['external_downloader_args'] = ['-c', '-j 3', '-x 3', '-s 3', '-k 1M']
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        # ydl.add_progress_hook(speed_check)
+        # TODO: Issue - deal with low download speed
+        ydl.download(song_list)
+
+
 if __name__ == "__main__":
     args = parse_args()
     try:
@@ -71,4 +111,6 @@ if __name__ == "__main__":
     resolution_h = resolution[1]
     bg_img = args.background_image
     fg_img = args.foreground_image
-    list_file = args.list
+    song_list = parse_file_list(args.list)
+
+    fetch_songs(song_list)
