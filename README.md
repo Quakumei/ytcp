@@ -33,6 +33,7 @@ complex to do that right off the bat. Let's say it's only a beginning.
 + [ ] write not the links, but the link to the playlist with speial tag --playlist-url and link
 + [ ] render playlist titles list on the side if --show-playlist or something
 + [ ] --specify-titles option to change list format and specify for every song ask whether to leave its title or not 
++ [ ] Add explicit proxy support
 
 # Thanks to
 - youtube-dl

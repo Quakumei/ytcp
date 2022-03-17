@@ -86,7 +86,7 @@ def fetch_songs(songs: list):
         "outtmpl": "parts/%(title)s.%(ext)s",
         # "listformats": True,
         # "simulate": True,
-        "format": "249",
+        "format": "bestaudio",
     }
     external_downloader = 'aria2c'
     if external_downloader:
