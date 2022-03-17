@@ -5,6 +5,7 @@
 
 # youtube_dl
 import youtube_dl
+from multiprocessing.dummy import Pool as ThreadPool
 
 # args check
 import argparse
@@ -76,6 +77,7 @@ def speed_check(s):
         raise Exception('Abnormal downloading speed drop.')
 
 
+
 def fetch_songs(songs: list):
     """
         Downloads audios from songs list
@@ -87,16 +89,24 @@ def fetch_songs(songs: list):
         # "listformats": True,
         # "simulate": True,
         "format": "bestaudio",
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '320',
+        }],
     }
     external_downloader = 'aria2c'
     if external_downloader:
         ydl_opts['external_downloader'] = external_downloader
         ydl_opts['external_downloader_args'] = ['-c', '-j 3', '-x 3', '-s 3', '-k 1M']
+        # ydl_opts['buffersize'] = 3
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         # ydl.add_progress_hook(speed_check)
-        # TODO: Issue - deal with low download speed
-        ydl.download(song_list)
-
+        # kind of done: Issue - deal with low download speed
+        with ThreadPool() as pool:
+            superlist = [[song] for song in songs]
+            result = pool.map(ydl.download, superlist)
+            print("[LOG] : Download complete!")
 
 if __name__ == "__main__":
     args = parse_args()

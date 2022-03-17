@@ -34,6 +34,7 @@ complex to do that right off the bat. Let's say it's only a beginning.
 + [ ] render playlist titles list on the side if --show-playlist or something
 + [ ] --specify-titles option to change list format and specify for every song ask whether to leave its title or not 
 + [ ] Add explicit proxy support
-
++ [ ] Add custom kbps choice (currently default 320kbps)
+    
 # Thanks to
 - youtube-dl
