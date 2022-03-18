@@ -10,6 +10,10 @@ from multiprocessing.dummy import Pool as ThreadPool
 # concat audio
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 
+# audio  length
+from mutagen.mp3 import MP3
+
+
 # clear parts folder
 import os,  shutil
 
@@ -136,6 +140,9 @@ def absoluteFilePaths(directory):
 def concatenate_audio_moviepy(folder : str, output_path):
     """Concatenates several audio files into one audio file using MoviePy
     and save it to `output_path`. Note that extension (mp3, etc.) must be added to `output_path`"""
+
+    # TODO: Concat audio with ffmpeg because multithreading
+
     clips = [AudioFileClip(c) for c in absoluteFilePaths(folder)]
     final_clip = concatenate_audioclips(clips)
     final_clip.write_audiofile(output_path)
@@ -157,5 +164,12 @@ if __name__ == "__main__":
 
     clear_songs("parts/")
     fetch_songs(song_list)
-    concatenate_audio_moviepy("parts/", "out/audio.mp3")
+    audio_concat = "out/audio.mp3"
+    concatenate_audio_moviepy("parts/", audio_concat)
+    audiolength_sec = MP3(audio_concat).info.length
 
+    # TODO: Resolution support
+    # TODO: -o support
+    # TODO: Custom kbps choice
+
+    os.system(f"ffmpeg -i {audio_concat} -f image2 -r 1/{audiolength_sec} -i {bg_img} -vcodec libx264 -y ./out/result.mp4")

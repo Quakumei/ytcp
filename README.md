@@ -8,8 +8,6 @@
  ytcp \
  --music-list list.txt \ 
  --background-image bg.png \
- --foreground-image fg.png \
- --resolution=1280x720 \
  -o "laying in patches of sunlight.mp4"
  ``` 
 + [ ] mvp 2: write backend and return video via API
@@ -31,10 +29,13 @@ complex to do that right off the bat. Let's say it's only a beginning.
 
 + [ ] mvp 1
 + [ ] write not the links, but the link to the playlist with speial tag --playlist-url and link
-+ [ ] render playlist titles list on the side if --show-playlist or something
 + [ ] --specify-titles option to change list format and specify for every song ask whether to leave its title or not 
 + [ ] Add explicit proxy support
 + [ ] Add custom kbps choice (currently default 320kbps)
-    
+
+# Thought process
+
+- Removed --foreground-image support because render with one image and its just simplier to photoshop it by yourself
+
 # Thanks to
 - youtube-dl
