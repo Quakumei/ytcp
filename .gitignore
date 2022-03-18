@@ -154,3 +154,5 @@ cython_debug/
 download-playlist.sh
 bg.png
 list.txt
+out/audio.mp3
+out/result.mp4

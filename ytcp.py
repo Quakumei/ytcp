@@ -7,6 +7,12 @@
 import youtube_dl
 from multiprocessing.dummy import Pool as ThreadPool
 
+# concat audio
+from moviepy.editor import concatenate_audioclips, AudioFileClip
+
+# clear parts folder
+import os,  shutil
+
 # args check
 import argparse
 import re
@@ -108,6 +114,32 @@ def fetch_songs(songs: list):
             result = pool.map(ydl.download, superlist)
             print("[LOG] : Download complete!")
 
+
+def clear_songs(folder : str):
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder,filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed  to delete %s. Reason: %s' % (file_path, e))
+
+
+def absoluteFilePaths(directory):
+    for dirpath,_,filenames in os.walk(directory):
+        for f in filenames:
+            yield os.path.abspath(os.path.join(dirpath, f))
+
+
+def concatenate_audio_moviepy(folder : str, output_path):
+    """Concatenates several audio files into one audio file using MoviePy
+    and save it to `output_path`. Note that extension (mp3, etc.) must be added to `output_path`"""
+    clips = [AudioFileClip(c) for c in absoluteFilePaths(folder)]
+    final_clip = concatenate_audioclips(clips)
+    final_clip.write_audiofile(output_path)
+
 if __name__ == "__main__":
     args = parse_args()
     try:
@@ -123,4 +155,7 @@ if __name__ == "__main__":
     fg_img = args.foreground_image
     song_list = parse_file_list(args.list)
 
+    clear_songs("parts/")
     fetch_songs(song_list)
+    concatenate_audio_moviepy("parts/", "out/audio.mp3")
+
