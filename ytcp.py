@@ -8,7 +8,8 @@ import youtube_dl
 from multiprocessing.dummy import Pool as ThreadPool
 
 # concat audio
-from moviepy.editor import concatenate_audioclips, AudioFileClip
+# from moviepy.editor import concatenate_audioclips, AudioFileClip
+import subprocess
 
 # audio  length
 from mutagen.mp3 import MP3
@@ -97,6 +98,7 @@ def fetch_songs(songs: list):
         "vcodec": None,
         "outtmpl": "parts/%(title)s.%(ext)s",
         # "listformats": True,
+        # "restrictfilenames": True,
         # "simulate": True,
         "format": "bestaudio",
         'postprocessors': [{
@@ -131,21 +133,35 @@ def clear_songs(folder : str):
             print('Failed  to delete %s. Reason: %s' % (file_path, e))
 
 
-def absoluteFilePaths(directory):
-    for dirpath,_,filenames in os.walk(directory):
-        for f in filenames:
-            yield os.path.abspath(os.path.join(dirpath, f))
+# def absoluteFilePaths(directory):
+#    for dirpath,_,filenames in os.walk(directory):
+#        for f in filenames:
+#            yield os.path.abspath(os.path.join(dirpath, f))
 
+def relativeFilePaths(directory):
+    for filename in os.listdir(directory):
+        os.rename(os.path.join(directory, filename), os.path.join(directory, filename.replace('\'', '')))
+    for filename in os.listdir(directory):
+        yield ''.join([directory, filename])
+# def concatenate_audio_moviepy(folder : str, output_path):
+#     """Concatenates several audio files into one audio file using MoviePy
+#     and save it to `output_path`. Note that extension (mp3, etc.) must be added to `output_path`"""
+#
+#
+#     clips = [AudioFileClip(c) for c in absoluteFilePaths(folder)]
+#     final_clip = concatenate_audioclips(clips)
+#     final_clip.write_audiofile(output_path)
 
-def concatenate_audio_moviepy(folder : str, output_path):
-    """Concatenates several audio files into one audio file using MoviePy
-    and save it to `output_path`. Note that extension (mp3, etc.) must be added to `output_path`"""
-
-    # TODO: Concat audio with ffmpeg because multithreading
-
-    clips = [AudioFileClip(c) for c in absoluteFilePaths(folder)]
-    final_clip = concatenate_audioclips(clips)
-    final_clip.write_audiofile(output_path)
+def concatenate_audio_ffmpeg(folder : str, output_path):
+    """
+        Concatenates several audio files into one audio file using ffmpeg
+        and save ot to 'output_path'.
+    """
+    confile = "confiles.txt"
+    clips = [("file '" + path + "'") for path in relativeFilePaths(folder)]
+    with open(confile, "w") as f:
+        f.write('\n'.join(clips) + '\n')
+    os.system(f"ffmpeg -f concat -safe 0 -i {confile} -c copy -y {output_path}")
 
 if __name__ == "__main__":
     args = parse_args()
@@ -165,7 +181,9 @@ if __name__ == "__main__":
     clear_songs("parts/")
     fetch_songs(song_list)
     audio_concat = "out/audio.mp3"
-    concatenate_audio_moviepy("parts/", audio_concat)
+    print('before')
+    concatenate_audio_ffmpeg("parts/", audio_concat)
+    print('after')
     audiolength_sec = MP3(audio_concat).info.length
 
     # TODO: Resolution support
